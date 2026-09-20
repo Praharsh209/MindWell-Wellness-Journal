@@ -1,0 +1,17 @@
+import { Router } from "express";
+import analyticsRouter from "./analytics.js";
+import authRouter from "./auth.js";
+import exportRouter from "./export.js";
+import healthRouter from "./health.js";
+import journalsRouter from "./journals.js";
+import moodsRouter from "./moods.js";
+import usersRouter from "./users.js";
+const router = Router();
+router.use(healthRouter);
+router.use(authRouter);
+router.use(journalsRouter);
+router.use(moodsRouter);
+router.use(analyticsRouter);
+router.use(usersRouter);
+router.use(exportRouter);
+export default router;
