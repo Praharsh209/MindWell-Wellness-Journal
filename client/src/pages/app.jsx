@@ -1,3 +1,4 @@
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { useEffect, useMemo, useState } from 'react';
 import { Link, useParams } from 'wouter';
@@ -10,13 +11,299 @@ const today = () => new Date().toISOString().slice(0, 10);
 export function DashboardPage() {
     const { data, isLoading, isError, refetch } = useGetDashboard();
     const { data: analytics } = useGetMoodAnalytics();
+
     if (isLoading)
-        return _jsx(AppShell, { children: _jsx(PageLoader, {}) });
+        return _jsx(AppShell, {
+            children: _jsx(PageLoader, {})
+        });
+
     if (isError || !data)
-        return _jsx(AppShell, { children: _jsx(ErrorState, { onRetry: () => refetch() }) });
+        return _jsx(AppShell, {
+            children: _jsx(ErrorState, {
+                onRetry: () => refetch()
+            })
+        });
+
     const trend = analytics?.trend ?? [];
-    const max = Math.max(...trend.map((item) => item.average), 10);
-    return _jsxs(AppShell, { children: [_jsx(SectionHeading, { eyebrow: "Your overview", title: "Good morning.", text: "A small check-in is still a check-in. Here\u2019s the shape of your space lately.", action: _jsxs(Link, { href: "/journal", className: "rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground", "data-testid": "link-new-entry-dashboard", children: [_jsx(Plus, { className: "mr-1 inline", size: 15 }), " New entry"] }) }), _jsxs("div", { className: "grid gap-4 sm:grid-cols-2 lg:grid-cols-4", children: [_jsx(StatCard, { label: "Current streak", value: `${data.streak} days`, note: "The rhythm is yours to keep.", icon: Flame, tint: "bg-[#f7e2b0]" }), _jsx(StatCard, { label: "Pages written", value: data.totalEntries, note: "Every page counts.", icon: BookOpen, tint: "bg-[#d7e5d3]" }), _jsx(StatCard, { label: "Average mood", value: data.averageMood.toFixed(1), note: "Out of ten, recently.", icon: Activity, tint: "bg-[#e6d6d4]" }), _jsx(StatCard, { label: "Today", value: data.todayMood ? `${data.todayMood.mood}/10` : 'Open', note: data.todayMood ? `${data.todayMood.emotion} energy` : 'A moment for yourself.', icon: HeartPulse, tint: "bg-secondary" })] }), _jsxs("div", { className: "mt-5 grid gap-5 lg:grid-cols-[1.2fr_.8fr]", children: [_jsxs("section", { className: "rounded-[24px] border border-card-border bg-card p-6 sm:p-7", children: [_jsxs("div", { className: "flex items-start justify-between", children: [_jsxs("div", { children: [_jsx("p", { className: "font-mono text-[10px] uppercase tracking-[.18em] text-muted-foreground", children: "Mood, last few days" }), _jsx("h2", { className: "mt-2 font-display text-3xl tracking-[-.04em]", children: "A little weather report" })] }), _jsx(Link, { href: "/mood", className: "rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground", "data-testid": "link-view-mood", children: _jsx(ArrowRight, { size: 17 }) })] }), _jsx("div", { className: "mt-9 flex h-44 items-end gap-2 sm:gap-4", children: trend.length ? trend.map((item) => _jsxs("div", { className: "group flex flex-1 flex-col items-center gap-2", "data-testid": `bar-mood-${item.date}`, children: [_jsx("div", { className: "relative w-full rounded-t-lg bg-accent/70 transition-all group-hover:bg-accent", style: { height: `${Math.max((item.average / max) * 100, 8)}%` }, children: _jsx("span", { className: "absolute -top-6 left-1/2 -translate-x-1/2 font-mono text-[10px] text-muted-foreground opacity-0 transition-opacity group-hover:opacity-100", children: item.average.toFixed(1) }) }), _jsx("span", { className: "font-mono text-[9px] text-muted-foreground", children: new Date(item.date).toLocaleDateString('en', { weekday: 'short' }).slice(0, 2) })] }, item.date)) : _jsx("p", { className: "self-center text-sm text-muted-foreground", children: "Your pattern will appear after a few check-ins." }) })] }), _jsxs("section", { className: "rounded-[24px] bg-primary p-6 text-primary-foreground sm:p-7", children: [_jsxs("div", { className: "flex items-center justify-between", children: [_jsx("p", { className: "font-mono text-[10px] uppercase tracking-[.18em] text-primary-foreground/50", children: "A prompt for today" }), _jsx(Sparkles, { size: 18, className: "text-accent" })] }), _jsxs("p", { className: "mt-12 font-display text-3xl leading-tight", children: ["\u201C", data.latestPrompt || 'What is asking for your attention today?', "\u201D"] }), _jsxs(Link, { href: "/journal", className: "mt-8 inline-flex items-center text-sm font-semibold text-accent hover:gap-3", "data-testid": "link-answer-prompt", children: ["Answer this prompt ", _jsx(ArrowRight, { className: "ml-2", size: 15 })] })] })] }), _jsxs("div", { className: "mt-5 flex items-center justify-between rounded-[22px] border border-border bg-secondary/60 px-5 py-4", children: [_jsxs("div", { className: "flex items-center gap-3", children: [_jsx("span", { className: "grid size-9 place-items-center rounded-xl bg-card text-primary", children: _jsx(LockKeyhole, { size: 16 }) }), _jsxs("p", { className: "text-sm", children: [_jsx("strong", { className: "font-semibold", children: "Private by default." }), " ", _jsx("span", { className: "text-muted-foreground", children: "Only you can read these pages." })] })] }), _jsxs(Link, { href: "/settings", className: "hidden text-xs font-semibold text-primary sm:block", "data-testid": "link-privacy-settings", children: ["Privacy settings ", _jsx(ArrowRight, { className: "ml-1 inline", size: 13 })] })] })] });
+
+    return _jsxs(AppShell, {
+        children: [
+            _jsx(SectionHeading, {
+                eyebrow: "Your overview",
+                title: "Good morning.",
+                text: "A small check-in is still a check-in. Here’s the shape of your space lately.",
+                action: _jsxs(Link, {
+                    href: "/journal",
+                    className: "rounded-full bg-primary px-4 py-2.5 text-sm font-semibold text-primary-foreground",
+                    "data-testid": "link-new-entry-dashboard",
+                    children: [
+                        _jsx(Plus, {
+                            className: "mr-1 inline",
+                            size: 15
+                        }),
+                        " New entry"
+                    ]
+                })
+            }),
+
+            _jsxs("div", {
+                className: "grid gap-4 sm:grid-cols-2 lg:grid-cols-4",
+                children: [
+                    _jsx(StatCard, {
+                        label: "Current streak",
+                        value: `${data.streak} days`,
+                        note: "The rhythm is yours to keep.",
+                        icon: Flame,
+                        tint: "bg-[#f7e2b0]"
+                    }),
+
+                    _jsx(StatCard, {
+                        label: "Pages written",
+                        value: data.totalEntries,
+                        note: "Every page counts.",
+                        icon: BookOpen,
+                        tint: "bg-[#d7e5d3]"
+                    }),
+
+                    _jsx(StatCard, {
+                        label: "Average mood",
+                        value: data.averageMood.toFixed(1),
+                        note: "Out of ten, recently.",
+                        icon: Activity,
+                        tint: "bg-[#e6d6d4]"
+                    }),
+
+                    _jsx(StatCard, {
+                        label: "Today",
+                        value: data.todayMood
+                            ? `${data.todayMood.mood}/10`
+                            : 'Open',
+                        note: data.todayMood
+                            ? `${data.todayMood.emotion} energy`
+                            : 'A moment for yourself.',
+                        icon: HeartPulse,
+                        tint: "bg-secondary"
+                    })
+                ]
+            }),
+
+            _jsxs("div", {
+                className: "mt-5 grid gap-5 lg:grid-cols-[1.2fr_.8fr]",
+                children: [
+
+                    _jsxs("section", {
+                        className: "rounded-[24px] border border-card-border bg-card p-6 sm:p-7",
+                        children: [
+
+                            _jsxs("div", {
+                                className: "flex items-start justify-between",
+                                children: [
+
+                                    _jsxs("div", {
+                                        children: [
+                                            _jsx("p", {
+                                                className: "font-mono text-[10px] uppercase tracking-[.18em] text-muted-foreground",
+                                                children: "Mood, last few days"
+                                            }),
+
+                                            _jsx("h2", {
+                                                className: "mt-2 font-display text-3xl tracking-[-.04em]",
+                                                children: "A little weather report"
+                                            })
+                                        ]
+                                    }),
+
+                                    _jsx(Link, {
+                                        href: "/mood",
+                                        className: "rounded-full p-2 text-muted-foreground hover:bg-secondary hover:text-foreground",
+                                        "data-testid": "link-view-mood",
+                                        children: _jsx(ArrowRight, {
+                                            size: 17
+                                        })
+                                    })
+                                ]
+                            }),
+
+                            _jsx("div", {
+                                className: "mt-8 h-52 w-full",
+                                children: trend.length ? (
+
+                                    _jsx(ResponsiveContainer, {
+                                        width: "100%",
+                                        height: "100%",
+                                        children: _jsxs(LineChart, {
+                                            data: trend,
+                                            margin: {
+                                                top: 20,
+                                                right: 10,
+                                                left: -20,
+                                                bottom: 0
+                                            },
+                                            children: [
+
+                                                _jsx(XAxis, {
+                                                    dataKey: "date",
+                                                    tickFormatter: (date) =>
+                                                        new Date(date)
+                                                            .toLocaleDateString(
+                                                                'en',
+                                                                { weekday: 'short' }
+                                                            )
+                                                            .slice(0, 2),
+                                                    tick: {
+                                                        fontSize: 10
+                                                    },
+                                                    axisLine: false,
+                                                    tickLine: false
+                                                }),
+
+                                                _jsx(YAxis, {
+                                                    domain: [0, 10],
+                                                    ticks: [0, 2, 4, 6, 8, 10],
+                                                    tick: {
+                                                        fontSize: 10
+                                                    },
+                                                    axisLine: false,
+                                                    tickLine: false
+                                                }),
+
+                                                _jsx(Tooltip, {
+                                                    formatter: (value) => [
+                                                        Number(value).toFixed(1),
+                                                        'Average mood'
+                                                    ],
+                                                    labelFormatter: (date) =>
+                                                        new Date(date).toLocaleDateString(
+                                                            'en',
+                                                            {
+                                                                weekday: 'short',
+                                                                month: 'short',
+                                                                day: 'numeric'
+                                                            }
+                                                        )
+                                                }),
+
+                                                _jsx(Line, {
+                                                    type: "monotone",
+                                                    dataKey: "average",
+                                                    stroke: "currentColor",
+                                                    strokeWidth: 2,
+                                                    dot: {
+                                                        r: 4
+                                                    },
+                                                    activeDot: {
+                                                        r: 6
+                                                    }
+                                                })
+                                            ]
+                                        })
+                                    })
+
+                                ) : (
+
+                                    _jsx("p", {
+                                        className: "flex h-full items-center justify-center text-sm text-muted-foreground",
+                                        children: "Your pattern will appear after a few check-ins."
+                                    })
+
+                                )
+                            })
+                        ]
+                    }),
+
+                    _jsxs("section", {
+                        className: "rounded-[24px] bg-primary p-6 text-primary-foreground sm:p-7",
+                        children: [
+
+                            _jsxs("div", {
+                                className: "flex items-center justify-between",
+                                children: [
+                                    _jsx("p", {
+                                        className: "font-mono text-[10px] uppercase tracking-[.18em] text-primary-foreground/50",
+                                        children: "A prompt for today"
+                                    }),
+
+                                    _jsx(Sparkles, {
+                                        size: 18,
+                                        className: "text-accent"
+                                    })
+                                ]
+                            }),
+
+                            _jsxs("p", {
+                                className: "mt-12 font-display text-3xl leading-tight",
+                                children: [
+                                    "“",
+                                    data.latestPrompt ||
+                                        'What is asking for your attention today?',
+                                    "”"
+                                ]
+                            }),
+
+                            _jsxs(Link, {
+                                href: "/journal",
+                                className: "mt-8 inline-flex items-center text-sm font-semibold text-accent hover:gap-3",
+                                "data-testid": "link-answer-prompt",
+                                children: [
+                                    "Answer this prompt ",
+                                    _jsx(ArrowRight, {
+                                        className: "ml-2",
+                                        size: 15
+                                    })
+                                ]
+                            })
+                        ]
+                    })
+                ]
+            }),
+
+            _jsxs("div", {
+                className: "mt-5 flex items-center justify-between rounded-[22px] border border-border bg-secondary/60 px-5 py-4",
+                children: [
+
+                    _jsxs("div", {
+                        className: "flex items-center gap-3",
+                        children: [
+                            _jsx("span", {
+                                className: "grid size-9 place-items-center rounded-xl bg-card text-primary",
+                                children: _jsx(LockKeyhole, {
+                                    size: 16
+                                })
+                            }),
+
+                            _jsxs("p", {
+                                className: "text-sm",
+                                children: [
+                                    _jsx("strong", {
+                                        className: "font-semibold",
+                                        children: "Private by default."
+                                    }),
+                                    " ",
+                                    _jsx("span", {
+                                        className: "text-muted-foreground",
+                                        children: "Only you can read these pages."
+                                    })
+                                ]
+                            })
+                        ]
+                    }),
+
+                    _jsxs(Link, {
+                        href: "/settings",
+                        className: "hidden text-xs font-semibold text-primary sm:block",
+                        "data-testid": "link-privacy-settings",
+                        children: [
+                            "Privacy settings ",
+                            _jsx(ArrowRight, {
+                                className: "ml-1 inline",
+                                size: 13
+                            })
+                        ]
+                    })
+                ]
+            })
+        ]
+    });
 }
 export function JournalPage() {
     const params = useParams();
